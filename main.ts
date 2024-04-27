@@ -2,9 +2,9 @@ namespace SpriteKind {
     export const Wall = SpriteKind.create()
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Wall, function (sprite, otherSprite) {
-    sprite.vy = mySprite.vy * -1
+    sprite.vy = monkey.vy * -1
 })
-let mySprite: Sprite = null
+let monkey: Sprite = null
 let mywall = sprites.create(img`
     7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
     7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
@@ -12,7 +12,7 @@ let mywall = sprites.create(img`
     7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
     `, SpriteKind.Wall)
 mywall.setPosition(80, 120)
-mySprite = sprites.create(img`
+monkey = sprites.create(img`
     . . . . f f f f f . . . . . . . 
     . . . f e e e e e f . . . . . . 
     . . f d d d d e e e f . . . . . 
@@ -30,5 +30,5 @@ mySprite = sprites.create(img`
     . . . f d d c d d b b d f . . . 
     . . . . f f f f f f f f f . . . 
     `, SpriteKind.Player)
-mySprite.y = 0
-mySprite.ay = 100
+monkey.y = 0
+monkey.ay = 100
