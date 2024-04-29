@@ -1,6 +1,6 @@
 {
     "name": "Apple Harvest",
-    "description": "",
+    "description": "It's apple harvest season in the Annapolis Valley.  Help your farmer bring in the crop!",
     "dependencies": {
         "device": "*",
         "arcade-text": "github:microsoft/arcade-text#v1.3.0",
@@ -14,7 +14,8 @@
         "tilemap.g.jres",
         "tilemap.g.ts",
         "images.g.jres",
-        "images.g.ts"
+        "images.g.ts",
+        "main.py"
     ],
     "testFiles": [
         "test.ts"
