@@ -1,6 +1,7 @@
 namespace SpriteKind {
     export const Wall = SpriteKind.create()
     export const Intro = SpriteKind.create()
+    export const Setup = SpriteKind.create()
 }
 function scene_setup_farmer_next (dir: number) {
     farmer_p1 += dir
@@ -20,6 +21,8 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (scene_current == 0) {
         scene_intro_button(1)
+    } else if (scene_current == 1) {
+        scene_setup_button()
     }
 })
 function scene_intro () {
@@ -55,19 +58,27 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     }
 })
 function scene_setup () {
-    scene.setBackgroundColor(1)
-    sprite_setup_title = textsprite.create("P1: Choose Your Farmer", 0, 9)
-    sprite_setup_title.setOutline(1, 8)
+    scene.setBackgroundColor(13)
+    sprite_setup_title = textsprite.create("P1: Choose Your Farmer")
+    sprite_setup_title.setOutline(1, 14)
     sprite_setup_title.setMaxFontHeight(5)
     sprite_setup_title.setPosition(80, 10)
+    sprite_setup_title.setKind(SpriteKind.Setup)
     scene_setup_farmer(farmer_p1)
 }
 function scene_setup_farmer (farmer_id: number) {
-    sprite_farmer = sprites.create(farmers_sprites_64[farmer_id], SpriteKind.Player)
     sprites.destroy(sprite_setup_farmer)
-    sprite_setup_farmer = textsprite.create(farmers_names[farmer_id], 1, 13)
-    sprite_setup_farmer.setOutline(1, 14)
+    sprites.destroy(sprite_farmer)
+    sprite_farmer = sprites.create(farmers_sprites_64[farmer_id], SpriteKind.Setup)
+    sprite_setup_farmer = textsprite.create(" " + farmers_names[farmer_id])
+    sprite_setup_farmer.setKind(SpriteKind.Setup)
+    sprite_setup_farmer.setOutline(1, 15)
+    sprite_setup_farmer.setIcon(assets.image`sprite_a`)
     sprite_setup_farmer.setPosition(80, 100)
+    sprite_setup_left = sprites.create(assets.image`sprite_left`, SpriteKind.Setup)
+    sprite_setup_left.setPosition(30, 60)
+    sprite_setup_right = sprites.create(assets.image`sprite_right`, SpriteKind.Setup)
+    sprite_setup_right.setPosition(130, 60)
 }
 function scene_intro_button (players: number) {
     players = players
@@ -77,19 +88,36 @@ function scene_intro_button (players: number) {
     pause(1000)
     scene_setup()
 }
+function scene_game () {
+    scene.setBackgroundColor(9)
+    game.showLongText("It's apple harvest time in the Valley.  A bumper crop!  The apples are falling off the trees.  Get them before they hit the ground. ", DialogLayout.Full)
+    game.showLongText("Your basket can only hold 5 at a time.  Fill the bin when your basket is full.  Watch out for the rotten apples!", DialogLayout.Full)
+    player_1 = sprites.create(farmers_sprites_32[farmer_p1], SpriteKind.Player)
+    controller.moveSprite(player_1, 100, 0)
+    player_1.bottom = 120
+}
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     if (scene_current == 1) {
         scene_setup_farmer_next(1)
     }
 })
+function scene_setup_button () {
+    sprites.destroyAllSpritesOfKind(SpriteKind.Setup)
+    scene_current += 1
+    scene_game()
+}
+let player_1: Sprite = null
 let players = 0
-let sprite_setup_farmer: TextSprite = null
+let sprite_setup_right: Sprite = null
+let sprite_setup_left: Sprite = null
 let sprite_farmer: Sprite = null
+let sprite_setup_farmer: TextSprite = null
 let sprite_setup_title: TextSprite = null
 let sprite_start_2: TextSprite = null
 let sprite_start_1: TextSprite = null
 let sprite_apple: Sprite = null
 let sprite_title: Sprite = null
+let farmers_sprites_32: Image[] = []
 let farmers_sprites_64: Image[] = []
 let farmers_names: string[] = []
 let farmer_p1 = 0
@@ -105,8 +133,14 @@ farmers_names = [
 ]
 farmers_sprites_64 = [
 assets.image`sprite_elderkin_64`,
-assets.image`sprite_elderkin_64`,
-assets.image`sprite_elderkin_64`,
-assets.image`sprite_elderkin_64`
+assets.image`sprite_sterling_64`,
+assets.image`sprite_hennigar_64`,
+assets.image`sprite_bishop_64`
+]
+farmers_sprites_32 = [
+assets.image`sprite_elderkin_32`,
+assets.image`sprite_sterling_32`,
+assets.image`sprite_hennigar_32`,
+assets.image`sprite_bishop_32`
 ]
 scene_intro()
