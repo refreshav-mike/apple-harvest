@@ -3,8 +3,8 @@ namespace SpriteKind {
     export const Intro = SpriteKind.create()
     export const Setup = SpriteKind.create()
 }
-function scene_setup_farmer_next (dir: number) {
-    farmer_p1 += dir
+function scene_setup_farmer_next (dir2: number) {
+    farmer_p1 += dir2
     if (farmer_p1 >= farmers_names.length) {
         farmer_p1 = 0
     } else if (farmer_p1 < 0) {
@@ -122,8 +122,9 @@ let farmers_sprites_64: Image[] = []
 let farmers_names: string[] = []
 let farmer_p1 = 0
 let scene_current = 0
+let players2 = 0
 scene_current = 0
-let players2 = 1
+let players22 = 1
 farmer_p1 = 0
 farmers_names = [
 "Elderkin",
