@@ -35,6 +35,13 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         scene_setup_button()
     }
 })
+controller.player2.onButtonEvent(ControllerButton.A, ControllerButtonEvent.Pressed, function () {
+    if (scene_current == 0) {
+        scene_intro_button(1)
+    } else if (scene_current == 1) {
+        scene_setup_button()
+    }
+})
 function scene_intro () {
     sprite_title = sprites.create(assets.image`sprite_title`, SpriteKind.Intro)
     sprite_title.setPosition(80, 40)
@@ -68,7 +75,6 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     }
 })
 function scene_setup () {
-    scene.setBackgroundColor(13)
     sprite_setup_title = textsprite.create("P" + ("" + scene_setup_players[0] + ": Choose Your Farmer"))
     if (scene_setup_players[0] == 1) {
         sprite_setup_title.setOutline(1, 14)
@@ -87,16 +93,24 @@ function scene_setup_farmer (farmer_sprite_id: number) {
     sprite_farmer = sprites.create(farmers_sprites_64[farmer_sprite_id], SpriteKind.Setup)
     sprite_setup_farmer = textsprite.create(" " + farmers_names[farmer_sprite_id])
     sprite_setup_farmer.setKind(SpriteKind.Setup)
-    sprite_setup_farmer.setOutline(1, 15)
     sprite_setup_farmer.setIcon(assets.image`sprite_a`)
     sprite_setup_farmer.setPosition(80, 100)
-    sprite_setup_left = sprites.create(assets.image`sprite_left`, SpriteKind.Setup)
+    if (scene_setup_players[0] == 1) {
+        scene.setBackgroundColor(13)
+        sprite_setup_farmer.setOutline(1, 14)
+        sprite_setup_left = sprites.create(assets.image`sprite_left_p1`, SpriteKind.Setup)
+        sprite_setup_right = sprites.create(assets.image`sprite_right_p1`, SpriteKind.Setup)
+    } else {
+        scene.setBackgroundColor(9)
+        sprite_setup_farmer.setOutline(1, 6)
+        sprite_setup_left = sprites.create(assets.image`sprite_left_p2`, SpriteKind.Setup)
+        sprite_setup_right = sprites.create(assets.image`sprite_right_p2`, SpriteKind.Setup)
+    }
     sprite_setup_left.setPosition(30, 60)
-    sprite_setup_right = sprites.create(assets.image`sprite_right`, SpriteKind.Setup)
     sprite_setup_right.setPosition(130, 60)
 }
-function scene_intro_button (players: number) {
-    players = players
+function scene_intro_button (players_selected: number) {
+    players = players_selected
     music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.InBackground)
     sprites.destroyAllSpritesOfKind(SpriteKind.Intro, effects.spray, 500)
     scene_current = 1
@@ -111,19 +125,26 @@ function scene_game () {
     scene.setBackgroundColor(9)
     game.showLongText("It's apple harvest time in the Valley.  A bumper crop!  The apples are falling off the trees.  Get them before they hit the ground. ", DialogLayout.Full)
     game.showLongText("Your basket can only hold 5 at a time.  Fill the bin when your basket is full.  Watch out for the rotten apples!", DialogLayout.Full)
-    player_1 = sprites.create(farmers_sprites_32[farmer_p1], SpriteKind.Player)
-    controller.moveSprite(player_1, 100, 0)
-    player_1.bottom = 120
+    mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.One), sprites.create(farmers_sprites_32[farmer_p1], SpriteKind.Player))
+    mp.moveWithButtons(mp.playerSelector(mp.PlayerNumber.One), 100, 0)
+    mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).bottom = 120
+    mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setFlag(SpriteFlag.StayInScreen, true)
     if (players > 1) {
-        player_2 = sprites.create(farmers_sprites_32[farmer_p2], SpriteKind.Player)
-        controller.player2.moveSprite(player_2, 100, 0)
+        mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two), sprites.create(farmers_sprites_32[farmer_p2], SpriteKind.Player))
+        mp.moveWithButtons(mp.playerSelector(mp.PlayerNumber.Two), 100, 0)
         mp.setPlayerIndicatorsVisible(true)
-        player_2.bottom = 120
-        player_2.x = 120
-        player_1.x = 40
+        mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).bottom = 120
+        mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).x = 120
+        mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).x = 40
+        mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).setFlag(SpriteFlag.StayInScreen, true)
     }
 }
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (scene_current == 1) {
+        scene_setup_farmer_next(1)
+    }
+})
+controller.player2.onButtonEvent(ControllerButton.Right, ControllerButtonEvent.Pressed, function () {
     if (scene_current == 1) {
         scene_setup_farmer_next(1)
     }
@@ -139,8 +160,11 @@ function scene_setup_button () {
         scene_game()
     }
 }
-let player_2: Sprite = null
-let player_1: Sprite = null
+controller.player2.onButtonEvent(ControllerButton.Left, ControllerButtonEvent.Pressed, function () {
+    if (scene_current == 1) {
+        scene_setup_farmer_next(-1)
+    }
+})
 let sprite_setup_right: Sprite = null
 let sprite_setup_left: Sprite = null
 let sprite_farmer: Sprite = null
