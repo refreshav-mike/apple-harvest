@@ -70,7 +70,11 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
 function scene_setup () {
     scene.setBackgroundColor(13)
     sprite_setup_title = textsprite.create("P" + ("" + scene_setup_players[0] + ": Choose Your Farmer"))
-    sprite_setup_title.setOutline(1, 14)
+    if (scene_setup_players[0] == 1) {
+        sprite_setup_title.setOutline(1, 14)
+    } else {
+        sprite_setup_title.setOutline(1, 6)
+    }
     sprite_setup_title.setMaxFontHeight(5)
     sprite_setup_title.setPosition(80, 10)
     sprite_setup_title.setKind(SpriteKind.Setup)
@@ -110,6 +114,14 @@ function scene_game () {
     player_1 = sprites.create(farmers_sprites_32[farmer_p1], SpriteKind.Player)
     controller.moveSprite(player_1, 100, 0)
     player_1.bottom = 120
+    if (players > 1) {
+        player_2 = sprites.create(farmers_sprites_32[farmer_p2], SpriteKind.Player)
+        controller.player2.moveSprite(player_2, 100, 0)
+        mp.setPlayerIndicatorsVisible(true)
+        player_2.bottom = 120
+        player_2.x = 120
+        player_1.x = 40
+    }
 }
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     if (scene_current == 1) {
@@ -127,6 +139,7 @@ function scene_setup_button () {
         scene_game()
     }
 }
+let player_2: Sprite = null
 let player_1: Sprite = null
 let sprite_setup_right: Sprite = null
 let sprite_setup_left: Sprite = null
