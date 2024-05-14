@@ -132,11 +132,13 @@ function scene_game () {
     if (players > 1) {
         mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two), sprites.create(farmers_sprites_32[farmer_p2], SpriteKind.Player))
         mp.moveWithButtons(mp.playerSelector(mp.PlayerNumber.Two), 100, 0)
-        mp.setPlayerIndicatorsVisible(true)
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).bottom = 120
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).x = 120
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).x = 40
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).setFlag(SpriteFlag.StayInScreen, true)
+        if (farmer_p1 == farmer_p2) {
+            mp.setPlayerIndicatorsVisible(true)
+        }
     }
 }
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
@@ -183,9 +185,17 @@ let farmer_p2 = 0
 let farmer_p1 = 0
 let players = 0
 let scene_current = 0
+// current scene is used to manage events across different scenes.  
+// 0 = intro
+// 1 = setup
+// 2 = game play
+// 3 = outtro
 scene_current = 0
+// Number of players
 players = 0
+// sprite ID for P1
 farmer_p1 = 0
+// Sprite ID for P2
 farmer_p2 = 0
 farmers_names = [
 "Elderkin",
