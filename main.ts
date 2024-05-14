@@ -4,14 +4,24 @@ namespace SpriteKind {
     export const Setup = SpriteKind.create()
 }
 function scene_setup_farmer_next (dir2: number) {
-    farmer_p1 += dir2
-    if (farmer_p1 >= farmers_names.length) {
-        farmer_p1 = 0
-    } else if (farmer_p1 < 0) {
-        farmer_p1 = farmers_names.length - 1
+    if (scene_setup_players[0] == 1) {
+        scene_setup_farmer_sprite = farmer_p1
+    } else {
+        scene_setup_farmer_sprite = farmer_p2
+    }
+    scene_setup_farmer_sprite += dir2
+    if (scene_setup_farmer_sprite >= farmers_names.length) {
+        scene_setup_farmer_sprite = 0
+    } else if (scene_setup_farmer_sprite < 0) {
+        scene_setup_farmer_sprite = farmers_names.length - 1
     }
     music.play(music.melodyPlayable(music.jumpDown), music.PlaybackMode.InBackground)
-    scene_setup_farmer(farmer_p1)
+    if (scene_setup_players[0] == 1) {
+        farmer_p1 = scene_setup_farmer_sprite
+    } else {
+        farmer_p2 = scene_setup_farmer_sprite
+    }
+    scene_setup_farmer(scene_setup_farmer_sprite)
 }
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     if (scene_current == 0) {
@@ -59,18 +69,19 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
 })
 function scene_setup () {
     scene.setBackgroundColor(13)
-    sprite_setup_title = textsprite.create("P1: Choose Your Farmer")
+    sprite_setup_title = textsprite.create("P" + ("" + scene_setup_players[0] + ": Choose Your Farmer"))
     sprite_setup_title.setOutline(1, 14)
     sprite_setup_title.setMaxFontHeight(5)
     sprite_setup_title.setPosition(80, 10)
     sprite_setup_title.setKind(SpriteKind.Setup)
-    scene_setup_farmer(farmer_p1)
+    scene_setup_farmer(0)
 }
-function scene_setup_farmer (farmer_id: number) {
+// Sets the setup screen to the farmer ID for player consideration
+function scene_setup_farmer (farmer_sprite_id: number) {
     sprites.destroy(sprite_setup_farmer)
     sprites.destroy(sprite_farmer)
-    sprite_farmer = sprites.create(farmers_sprites_64[farmer_id], SpriteKind.Setup)
-    sprite_setup_farmer = textsprite.create(" " + farmers_names[farmer_id])
+    sprite_farmer = sprites.create(farmers_sprites_64[farmer_sprite_id], SpriteKind.Setup)
+    sprite_setup_farmer = textsprite.create(" " + farmers_names[farmer_sprite_id])
     sprite_setup_farmer.setKind(SpriteKind.Setup)
     sprite_setup_farmer.setOutline(1, 15)
     sprite_setup_farmer.setIcon(assets.image`sprite_a`)
@@ -86,6 +97,10 @@ function scene_intro_button (players: number) {
     sprites.destroyAllSpritesOfKind(SpriteKind.Intro, effects.spray, 500)
     scene_current = 1
     pause(1000)
+    scene_setup_players = [1]
+    if (players > 1) {
+        scene_setup_players.push(players)
+    }
     scene_setup()
 }
 function scene_game () {
@@ -102,12 +117,17 @@ controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     }
 })
 function scene_setup_button () {
+    music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.InBackground)
     sprites.destroyAllSpritesOfKind(SpriteKind.Setup)
-    scene_current += 1
-    scene_game()
+    scene_setup_players.shift()
+    if (scene_setup_players.length > 0) {
+        scene_setup()
+    } else {
+        scene_current += 1
+        scene_game()
+    }
 }
 let player_1: Sprite = null
-let players = 0
 let sprite_setup_right: Sprite = null
 let sprite_setup_left: Sprite = null
 let sprite_farmer: Sprite = null
@@ -117,15 +137,19 @@ let sprite_start_2: TextSprite = null
 let sprite_start_1: TextSprite = null
 let sprite_apple: Sprite = null
 let sprite_title: Sprite = null
+let scene_setup_farmer_sprite = 0
+let scene_setup_players: number[] = []
 let farmers_sprites_32: Image[] = []
 let farmers_sprites_64: Image[] = []
 let farmers_names: string[] = []
+let farmer_p2 = 0
 let farmer_p1 = 0
+let players = 0
 let scene_current = 0
-let players2 = 0
 scene_current = 0
-let players22 = 1
+players = 0
 farmer_p1 = 0
+farmer_p2 = 0
 farmers_names = [
 "Elderkin",
 "Sterling",
