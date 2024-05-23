@@ -2,6 +2,10 @@ namespace SpriteKind {
     export const Wall = SpriteKind.create()
     export const Intro = SpriteKind.create()
     export const Setup = SpriteKind.create()
+    export const Apple = SpriteKind.create()
+}
+namespace StatusBarKind {
+    export const Apples = StatusBarKind.create()
 }
 function scene_setup_farmer_next (dir2: number) {
     if (scene_setup_players[0] == 1) {
@@ -90,6 +94,9 @@ function scene_setup () {
     sprite_setup_title.setKind(SpriteKind.Setup)
     scene_setup_farmer(0)
 }
+scene.onHitWall(SpriteKind.Apple, function (sprite, location) {
+    sprites.destroy(sprite)
+})
 // Sets the setup screen to the farmer ID for player consideration
 function scene_setup_farmer (farmer_sprite_id: number) {
     sprites.destroy(sprite_setup_farmer)
@@ -116,6 +123,7 @@ function scene_setup_farmer (farmer_sprite_id: number) {
 function scene_game_jump_player (player2: Sprite) {
     if (player2.vy == 0) {
         player2.vy = -160
+        player_1_bucket.value += 1
     }
 }
 function scene_intro_button (players_selected: number) {
@@ -260,6 +268,12 @@ function scene_game () {
     mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.One), sprites.create(farmers_sprites_32[farmer_p1], SpriteKind.Player))
     mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).ay = 400
     mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setFlag(SpriteFlag.StayInScreen, true)
+    player_1_bucket = statusbars.create(20, 4, StatusBarKind.Apples)
+    player_1_bucket.value = 0
+    player_1_bucket.max = 5
+    player_1_bucket.setColor(2, 0)
+    player_1_bucket.positionDirection(CollisionDirection.Bottom)
+    player_1_bucket.attachToSprite(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)))
     if (players > 1) {
         mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two), sprites.create(farmers_sprites_32[farmer_p2], SpriteKind.Player))
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).ay = 400
@@ -316,6 +330,7 @@ controller.player2.onButtonEvent(ControllerButton.Left, ControllerButtonEvent.Pr
 })
 let player_2_dx = 0
 let player_1_dx = 0
+let player_1_bucket: StatusBarSprite = null
 let sprite_setup_right: Sprite = null
 let sprite_setup_left: Sprite = null
 let sprite_farmer: Sprite = null
@@ -372,5 +387,16 @@ game.onUpdate(function () {
         if (scene_game_playing == 1) {
             scene_game_move_players()
         }
+    }
+})
+forever(function () {
+    if (scene_game_playing == 1) {
+        pause(100)
+        sprite_apple = sprites.create(assets.image`sprite_apple`, SpriteKind.Apple)
+        sprite_apple.setScale(randint(0.25, 0.75), ScaleAnchor.Middle)
+        sprite_apple.ay = randint(20, 60)
+        sprite_apple.vy = randint(20, 60)
+        sprite_apple.y = 0
+        sprite_apple.x = randint(20, 140)
     }
 })

@@ -6,7 +6,8 @@
         "device": "*",
         "arcade-text": "github:microsoft/arcade-text#v1.3.0",
         "arcade-story": "github:microsoft/arcade-storytelling#v1.0.3",
-        "multiplayer": "*"
+        "multiplayer": "*",
+        "pxt-status-bar": "github:jwunderl/pxt-status-bar#v0.4.2"
     },
     "files": [
         "main.blocks",
