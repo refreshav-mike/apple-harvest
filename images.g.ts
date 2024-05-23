@@ -616,6 +616,41 @@ b b b b b b b e e e e e e b . .
 . . . . . . . 6 6 6 9 . . . . . 
 . . . . . . . 6 6 9 . . . . . . 
 `;
+            case "image11":
+            case "bin":return img`
+................................
+................................
+................................
+................................
+................................
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eee..........................eee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+`;
         }
         return null;
     })

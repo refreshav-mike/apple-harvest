@@ -3,6 +3,7 @@ namespace SpriteKind {
     export const Intro = SpriteKind.create()
     export const Setup = SpriteKind.create()
     export const Apple = SpriteKind.create()
+    export const Bin = SpriteKind.create()
 }
 namespace StatusBarKind {
     export const Apples = StatusBarKind.create()
@@ -30,6 +31,35 @@ function scene_setup_farmer_next (dir2: number) {
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     if (scene_current == 0) {
         scene_intro_button(2)
+    }
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Apple, function (sprite, otherSprite) {
+    if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.One)) {
+        if (player_1_bucket.value == 5) {
+            otherSprite.setFlag(SpriteFlag.Ghost, true)
+            otherSprite.setFlag(SpriteFlag.DestroyOnWall, true)
+            if (otherSprite.x < 60) {
+                otherSprite.setVelocity(-500, -50)
+            } else {
+                otherSprite.setVelocity(500, -50)
+            }
+        } else {
+            sprites.destroy(otherSprite)
+            player_1_bucket.value += 1
+        }
+    } else {
+        if (player_2_bucket.value == 5) {
+            otherSprite.setFlag(SpriteFlag.Ghost, true)
+            otherSprite.setFlag(SpriteFlag.DestroyOnWall, true)
+            if (otherSprite.x < 60) {
+                otherSprite.setVelocity(-500, -50)
+            } else {
+                otherSprite.setVelocity(500, -50)
+            }
+        } else {
+            sprites.destroy(otherSprite)
+            player_2_bucket.value += 1
+        }
     }
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
@@ -123,9 +153,17 @@ function scene_setup_farmer (farmer_sprite_id: number) {
 function scene_game_jump_player (player2: Sprite) {
     if (player2.vy == 0) {
         player2.vy = -160
-        player_1_bucket.value += 1
     }
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Bin, function (sprite, otherSprite) {
+    if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.One) && sprites.readDataNumber(otherSprite, "player") == 1) {
+        mp.changePlayerStateBy(mp.playerSelector(mp.PlayerNumber.One), MultiplayerState.score, player_1_bucket.value)
+        player_1_bucket.value = 0
+    } else if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.Two) && sprites.readDataNumber(otherSprite, "player") == 2) {
+        mp.changePlayerStateBy(mp.playerSelector(mp.PlayerNumber.Two), MultiplayerState.score, player_2_bucket.value)
+        player_2_bucket.value = 0
+    }
+})
 function scene_intro_button (players_selected: number) {
     players = players_selected
     music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.InBackground)
@@ -266,6 +304,7 @@ function scene_game () {
     game.showLongText("It's apple harvest time in the Valley.  A bumper crop!  The apples are falling off the trees.  Get them before they hit the ground. ", DialogLayout.Full)
     game.showLongText("Your basket can only hold 5 at a time.  Fill the bin when your basket is full.  Watch out for the rotten apples!", DialogLayout.Full)
     mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.One), sprites.create(farmers_sprites_32[farmer_p1], SpriteKind.Player))
+    mp.setPlayerState(mp.playerSelector(mp.PlayerNumber.One), MultiplayerState.score, 0)
     mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).ay = 400
     mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setFlag(SpriteFlag.StayInScreen, true)
     player_1_bucket = statusbars.create(20, 4, StatusBarKind.Apples)
@@ -274,17 +313,32 @@ function scene_game () {
     player_1_bucket.setColor(2, 0)
     player_1_bucket.positionDirection(CollisionDirection.Bottom)
     player_1_bucket.attachToSprite(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)))
+    player_1_bin = sprites.create(assets.image`bin`, SpriteKind.Bin)
+    sprites.setDataNumber(player_1_bin, "player", 1)
+    player_1_bin.setPosition(-5, 100)
     if (players > 1) {
         mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two), sprites.create(farmers_sprites_32[farmer_p2], SpriteKind.Player))
+        mp.setPlayerState(mp.playerSelector(mp.PlayerNumber.Two), MultiplayerState.score, 0)
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).ay = 400
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).x = 120
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).x = 40
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).setFlag(SpriteFlag.StayInScreen, true)
+        player_2_bucket = statusbars.create(20, 4, StatusBarKind.Apples)
+        player_2_bucket.value = 0
+        player_2_bucket.max = 5
+        player_2_bucket.setColor(2, 0)
+        player_2_bucket.positionDirection(CollisionDirection.Bottom)
+        player_2_bucket.attachToSprite(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)))
+        player_2_bin = sprites.create(assets.image`bin`, SpriteKind.Bin)
+        sprites.setDataNumber(player_2_bin, "player", 2)
+        player_2_bin.setPosition(scene.screenWidth() + 5, 100)
         if (farmer_p1 == farmer_p2) {
-            mp.setPlayerIndicatorsVisible(true)
+            player_1_bucket.setLabel("P1")
+            player_2_bucket.setLabel("P2")
         }
     }
     scene_game_playing = 1
+    info.startCountdown(60)
 }
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     if (scene_current == 1) {
@@ -330,7 +384,8 @@ controller.player2.onButtonEvent(ControllerButton.Left, ControllerButtonEvent.Pr
 })
 let player_2_dx = 0
 let player_1_dx = 0
-let player_1_bucket: StatusBarSprite = null
+let player_2_bin: Sprite = null
+let player_1_bin: Sprite = null
 let sprite_setup_right: Sprite = null
 let sprite_setup_left: Sprite = null
 let sprite_farmer: Sprite = null
@@ -340,6 +395,8 @@ let sprite_start_2: TextSprite = null
 let sprite_start_1: TextSprite = null
 let sprite_apple: Sprite = null
 let sprite_title: Sprite = null
+let player_2_bucket: StatusBarSprite = null
+let player_1_bucket: StatusBarSprite = null
 let scene_setup_farmer_sprite = 0
 let scene_setup_players: number[] = []
 let farmers_sprites_32: Image[] = []
