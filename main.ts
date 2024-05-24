@@ -71,6 +71,23 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         scene_game_jump_player(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)))
     }
 })
+function scene_game_update_bin (bin: Sprite, score: number) {
+    if (score < 5) {
+        bin.setImage(assets.image`bin_0`)
+    } else if (score < 10) {
+        bin.setImage(assets.image`bin_1`)
+    } else if (score < 15) {
+        bin.setImage(assets.image`bin_2`)
+    } else if (score < 20) {
+        bin.setImage(assets.image`bin_3`)
+    } else if (score < 25) {
+        bin.setImage(assets.image`bin_4`)
+    } else if (score < 30) {
+        bin.setImage(assets.image`bin_5`)
+    } else {
+        bin.setImage(assets.image`bin_6`)
+    }
+}
 controller.player2.onButtonEvent(ControllerButton.A, ControllerButtonEvent.Pressed, function () {
     if (scene_current == 0) {
         scene_intro_button(1)
@@ -159,9 +176,11 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Bin, function (sprite, otherSpri
     if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.One) && sprites.readDataNumber(otherSprite, "player") == 1) {
         mp.changePlayerStateBy(mp.playerSelector(mp.PlayerNumber.One), MultiplayerState.score, player_1_bucket.value)
         player_1_bucket.value = 0
+        scene_game_update_bin(otherSprite, mp.getPlayerState(mp.playerSelector(mp.PlayerNumber.One), MultiplayerState.score))
     } else if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.Two) && sprites.readDataNumber(otherSprite, "player") == 2) {
         mp.changePlayerStateBy(mp.playerSelector(mp.PlayerNumber.Two), MultiplayerState.score, player_2_bucket.value)
         player_2_bucket.value = 0
+        scene_game_update_bin(otherSprite, mp.getPlayerState(mp.playerSelector(mp.PlayerNumber.Two), MultiplayerState.score))
     }
 })
 function scene_intro_button (players_selected: number) {
@@ -313,7 +332,7 @@ function scene_game () {
     player_1_bucket.setColor(2, 0)
     player_1_bucket.positionDirection(CollisionDirection.Bottom)
     player_1_bucket.attachToSprite(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)))
-    player_1_bin = sprites.create(assets.image`bin`, SpriteKind.Bin)
+    player_1_bin = sprites.create(assets.image`bin_0`, SpriteKind.Bin)
     sprites.setDataNumber(player_1_bin, "player", 1)
     player_1_bin.setPosition(-5, 100)
     if (players > 1) {
@@ -329,7 +348,7 @@ function scene_game () {
         player_2_bucket.setColor(2, 0)
         player_2_bucket.positionDirection(CollisionDirection.Bottom)
         player_2_bucket.attachToSprite(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)))
-        player_2_bin = sprites.create(assets.image`bin`, SpriteKind.Bin)
+        player_2_bin = sprites.create(assets.image`bin_0`, SpriteKind.Bin)
         sprites.setDataNumber(player_2_bin, "player", 2)
         player_2_bin.setPosition(scene.screenWidth() + 5, 100)
         if (farmer_p1 == farmer_p2) {
@@ -448,7 +467,7 @@ game.onUpdate(function () {
 })
 forever(function () {
     if (scene_game_playing == 1) {
-        pause(100)
+        pause(randint(800, 1200))
         sprite_apple = sprites.create(assets.image`sprite_apple`, SpriteKind.Apple)
         sprite_apple.setScale(randint(0.25, 0.75), ScaleAnchor.Middle)
         sprite_apple.ay = randint(20, 60)
