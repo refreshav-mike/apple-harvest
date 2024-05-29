@@ -8,31 +8,28 @@ namespace SpriteKind {
 namespace StatusBarKind {
     export const Apples = StatusBarKind.create()
 }
-function scene_setup_farmer_next (dir2: number) {
-    if (scene_setup_players[0] == 1) {
-        scene_setup_farmer_sprite = farmer_p1
-    } else {
-        scene_setup_farmer_sprite = farmer_p2
+function scene_setup_farmer_next (dir2: number, player2: number) {
+    if (scene_setup_players[0] == player2) {
+        if (scene_setup_players[0] == 1) {
+            scene_setup_farmer_sprite = farmer_p1
+        } else {
+            scene_setup_farmer_sprite = farmer_p2
+        }
+        scene_setup_farmer_sprite += dir2
+        if (scene_setup_farmer_sprite >= farmers_names.length) {
+            scene_setup_farmer_sprite = 0
+        } else if (scene_setup_farmer_sprite < 0) {
+            scene_setup_farmer_sprite = farmers_names.length - 1
+        }
+        music.play(music.melodyPlayable(music.jumpDown), music.PlaybackMode.InBackground)
+        if (scene_setup_players[0] == 1) {
+            farmer_p1 = scene_setup_farmer_sprite
+        } else {
+            farmer_p2 = scene_setup_farmer_sprite
+        }
+        scene_setup_farmer(scene_setup_farmer_sprite)
     }
-    scene_setup_farmer_sprite += dir2
-    if (scene_setup_farmer_sprite >= farmers_names.length) {
-        scene_setup_farmer_sprite = 0
-    } else if (scene_setup_farmer_sprite < 0) {
-        scene_setup_farmer_sprite = farmers_names.length - 1
-    }
-    music.play(music.melodyPlayable(music.jumpDown), music.PlaybackMode.InBackground)
-    if (scene_setup_players[0] == 1) {
-        farmer_p1 = scene_setup_farmer_sprite
-    } else {
-        farmer_p2 = scene_setup_farmer_sprite
-    }
-    scene_setup_farmer(scene_setup_farmer_sprite)
 }
-controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (scene_current == 0) {
-        scene_intro_button(2)
-    }
-})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Apple, function (sprite, otherSprite) {
     if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.One)) {
         if (player_1_bucket.value == 5) {
@@ -62,15 +59,6 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Apple, function (sprite, otherSp
         }
     }
 })
-controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (scene_current == 0) {
-        scene_intro_button(1)
-    } else if (scene_current == 1) {
-        scene_setup_button()
-    } else if (scene_current == 2) {
-        scene_game_jump_player(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)))
-    }
-})
 function scene_game_update_bin (bin: Sprite, score: number) {
     if (score < 5) {
         bin.setImage(assets.image`bin_0`)
@@ -92,7 +80,7 @@ controller.player2.onButtonEvent(ControllerButton.A, ControllerButtonEvent.Press
     if (scene_current == 0) {
         scene_intro_button(1)
     } else if (scene_current == 1) {
-        scene_setup_button()
+        scene_setup_button(2)
     } else if (scene_current == 2) {
         scene_game_jump_player(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)))
     }
@@ -124,11 +112,6 @@ function scene_intro () {
     sprite_start_2.setOutline(1, 2)
     sprite_start_2.setPosition(80, 110)
 }
-controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (scene_current == 1) {
-        scene_setup_farmer_next(-1)
-    }
-})
 function scene_setup () {
     sprite_setup_title = textsprite.create("P" + ("" + scene_setup_players[0] + ": Choose Your Farmer"))
     if (scene_setup_players[0] == 1) {
@@ -359,14 +342,9 @@ function scene_game () {
     scene_game_playing = 1
     info.startCountdown(60)
 }
-controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (scene_current == 1) {
-        scene_setup_farmer_next(1)
-    }
-})
 controller.player2.onButtonEvent(ControllerButton.Right, ControllerButtonEvent.Pressed, function () {
     if (scene_current == 1) {
-        scene_setup_farmer_next(1)
+        scene_setup_farmer_next(1, 2)
     }
 })
 function scene_game_move_players () {
@@ -385,20 +363,46 @@ function scene_game_move_players () {
         }
     }
 }
-function scene_setup_button () {
-    music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.InBackground)
-    sprites.destroyAllSpritesOfKind(SpriteKind.Setup)
-    scene_setup_players.shift()
-    if (scene_setup_players.length > 0) {
-        scene_setup()
-    } else {
-        scene_current += 1
-        scene_game()
+function scene_setup_button (player2: number) {
+    if (scene_setup_players[0] == player2) {
+        music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.InBackground)
+        sprites.destroyAllSpritesOfKind(SpriteKind.Setup)
+        scene_setup_players.shift()
+        if (scene_setup_players.length > 0) {
+            scene_setup()
+        } else {
+            scene_current += 1
+            scene_game()
+        }
     }
 }
 controller.player2.onButtonEvent(ControllerButton.Left, ControllerButtonEvent.Pressed, function () {
     if (scene_current == 1) {
-        scene_setup_farmer_next(-1)
+        scene_setup_farmer_next(-1, 2)
+    }
+})
+controller.player1.onButtonEvent(ControllerButton.Right, ControllerButtonEvent.Pressed, function () {
+    if (scene_current == 1) {
+        scene_setup_farmer_next(1, 1)
+    }
+})
+controller.player1.onButtonEvent(ControllerButton.A, ControllerButtonEvent.Pressed, function () {
+    if (scene_current == 0) {
+        scene_intro_button(1)
+    } else if (scene_current == 1) {
+        scene_setup_button(1)
+    } else if (scene_current == 2) {
+        scene_game_jump_player(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)))
+    }
+})
+controller.player1.onButtonEvent(ControllerButton.B, ControllerButtonEvent.Pressed, function () {
+    if (scene_current == 0) {
+        scene_intro_button(2)
+    }
+})
+controller.player1.onButtonEvent(ControllerButton.Left, ControllerButtonEvent.Pressed, function () {
+    if (scene_current == 1) {
+        scene_setup_farmer_next(-1, 1)
     }
 })
 let player_2_dx = 0
