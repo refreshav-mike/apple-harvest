@@ -303,8 +303,18 @@ function scene_game () {
         ..............................................eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee......................................................................
         `)
     tiles.setCurrentTilemap(tilemap`level2`)
-    game.showLongText("It's apple harvest time in the Valley.  A bumper crop!  The apples are falling off the trees.  Get them before they hit the ground. ", DialogLayout.Full)
-    game.showLongText("Your basket can only hold 5 at a time.  Fill the bin when your basket is full.  Watch out for the rotten apples!", DialogLayout.Full)
+    story.printDialog("It's apple harvest time in the Valley.  A bumper crop!", 80, 50, 70, 150)
+    story.printDialog("The apples are falling off the trees.", 80, 50, 70, 150)
+    for (let index = 0; index < 30; index++) {
+        sprite_apple = sprites.create(assets.image`sprite_apple`, SpriteKind.Player)
+        sprite_apple.setFlag(SpriteFlag.Ghost, true)
+        sprite_apple.setFlag(SpriteFlag.AutoDestroy, true)
+        sprite_apple.setScale(randint(0.4, 0.7), ScaleAnchor.Middle)
+        sprite_apple_x = randint(30, 130)
+        sprite_apple.setPosition(sprite_apple_x, 10)
+        sprite_apple.ay = randint(120, 150)
+    }
+    story.printDialog("Get them before they hit the ground. ", 80, 50, 70, 150)
     mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.One), sprites.create(farmers_sprites_32[farmer_p1], SpriteKind.Player))
     mp.setPlayerState(mp.playerSelector(mp.PlayerNumber.One), MultiplayerState.score, 0)
     mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).ay = 400
@@ -339,6 +349,7 @@ function scene_game () {
             player_2_bucket.setLabel("P2")
         }
     }
+    story.printDialog("Your basket can only hold 5 at a time.  Fill the bin when your basket is full.", 90, 90, 50, 130)
     scene_game_playing = 1
     info.startCountdown(60)
 }
@@ -409,6 +420,7 @@ let player_2_dx = 0
 let player_1_dx = 0
 let player_2_bin: Sprite = null
 let player_1_bin: Sprite = null
+let sprite_apple_x = 0
 let sprite_setup_right: Sprite = null
 let sprite_setup_left: Sprite = null
 let sprite_farmer: Sprite = null
