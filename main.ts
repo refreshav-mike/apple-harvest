@@ -312,7 +312,7 @@ function scene_game () {
     sprites.destroy(sprite_worm)
     scene_game_playing = 1
     music.play(music.createSong(assets.song`game-play`), music.PlaybackMode.InBackground)
-    info.startCountdown(10)
+    info.startCountdown(60)
 }
 scene.onHitWall(SpriteKind.Enemy, function (sprite, location) {
     sprites.destroy(sprite)
