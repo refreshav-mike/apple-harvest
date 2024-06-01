@@ -160,6 +160,48 @@ function scene_game_jump_player (player2: Sprite) {
         player2.vy = -160
     }
 }
+info.onCountdownEnd(function () {
+    scene_current += 1
+    scene_game_playing = 0
+    sprites.destroyAllSpritesOfKind(SpriteKind.Enemy)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Apple)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Player)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Sky)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Bin)
+    music.stopAllSounds()
+    scene.setBackgroundColor(9)
+    scene.setBackgroundImage(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `)
+    tiles.setCurrentTilemap(tilemap`level5`)
+    story.startCutscene(function () {
+        if (players > 1) {
+            mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.One), sprites.create(farmers_sprites_64[farmer_p1], SpriteKind.Player))
+            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setPosition(32, 60)
+            mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two), sprites.create(farmers_sprites_64[farmer_p2], SpriteKind.Player))
+            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).setPosition(128, 60)
+        } else {
+            mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.One), sprites.create(farmers_sprites_64[farmer_p1], SpriteKind.Player))
+            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setPosition(32, 60)
+        }
+        game.gameOver(true)
+    })
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Bin, function (sprite, otherSprite) {
     if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.One) && sprites.readDataNumber(otherSprite, "player") == 1) {
         if (player_1_bucket.value > 0) {
@@ -270,7 +312,7 @@ function scene_game () {
     sprites.destroy(sprite_worm)
     scene_game_playing = 1
     music.play(music.createSong(assets.song`game-play`), music.PlaybackMode.InBackground)
-    info.startCountdown(60)
+    info.startCountdown(10)
 }
 scene.onHitWall(SpriteKind.Enemy, function (sprite, location) {
     sprites.destroy(sprite)
@@ -340,6 +382,12 @@ controller.player1.onButtonEvent(ControllerButton.Left, ControllerButtonEvent.Pr
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
     sprites.destroy(otherSprite, effects.fire, 500)
+    animation.runMovementAnimation(
+    sprite,
+    animation.animationPresets(animation.shake),
+    500,
+    false
+    )
     music.play(music.melodyPlayable(music.zapped), music.PlaybackMode.InBackground)
     if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.One)) {
         if (player_1_bucket.value > 0) {
@@ -412,6 +460,7 @@ assets.image`sprite_hennigar_32`,
 assets.image`sprite_bishop_32`
 ]
 scene_intro()
+game.setGameOverScoringType(game.ScoringType.HighScore)
 game.onUpdate(function () {
     if (scene_current == 2) {
         if (scene_game_playing == 1) {
@@ -420,7 +469,7 @@ game.onUpdate(function () {
     }
 })
 forever(function () {
-    if (scene_game_playing == 1) {
+    if (scene_current == 2 && scene_game_playing == 1) {
         pause(randint(1200, 2000))
         sprite_sky_type = randint(0, 3)
         if (sprite_sky_type == 0) {
@@ -460,7 +509,7 @@ forever(function () {
     }
 })
 forever(function () {
-    if (scene_game_playing == 1) {
+    if (scene_current == 2 && scene_game_playing == 1) {
         pause(randint(800, 1200))
         sprite_apple = sprites.create(assets.image`sprite_apple`, SpriteKind.Apple)
         sprite_apple.setScale(randint(0.25, 0.75), ScaleAnchor.Middle)
@@ -471,7 +520,7 @@ forever(function () {
     }
 })
 forever(function () {
-    if (scene_game_playing == 1) {
+    if (scene_current == 2 && scene_game_playing == 1) {
         pause(randint(2000, 5000))
         sprite_worm = sprites.create(img`
             . . . . . . . . . . . . . . . . 
