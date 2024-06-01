@@ -195,9 +195,61 @@ info.onCountdownEnd(function () {
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setPosition(32, 60)
             mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two), sprites.create(farmers_sprites_64[farmer_p2], SpriteKind.Player))
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).setPosition(128, 60)
+            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setFlag(SpriteFlag.Ghost, true)
+            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).setFlag(SpriteFlag.Ghost, true)
         } else {
             mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.One), sprites.create(farmers_sprites_64[farmer_p1], SpriteKind.Player))
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setPosition(32, 60)
+            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setFlag(SpriteFlag.Ghost, true)
+        }
+        story.printDialog("The apple tally is in!", 80, 90, 50, 150)
+        story.setPagePauseLength(1000, 5000)
+        if (players > 1) {
+            if (info.player1.score() == info.player2.score()) {
+                animation.runMovementAnimation(
+                mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)),
+                animation.animationPresets(animation.bobbing),
+                5000,
+                true
+                )
+                animation.runMovementAnimation(
+                mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)),
+                animation.animationPresets(animation.bobbing),
+                1000,
+                true
+                )
+                story.printDialog("It's a tie with a total of " + convertToText(info.player1.score()) + " apples picked!", 80, 90, 50, 150)
+            } else if (info.player1.score() > info.player2.score()) {
+                animation.runMovementAnimation(
+                mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)),
+                animation.animationPresets(animation.bobbing),
+                1000,
+                true
+                )
+                story.printDialog("Player 1 wins with a total of " + convertToText(info.player1.score()) + " apples picked!", 80, 90, 50, 150)
+            } else {
+                animation.runMovementAnimation(
+                mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)),
+                animation.animationPresets(animation.bobbing),
+                1000,
+                true
+                )
+                story.printDialog("Player 2 wins with a total of " + convertToText(info.player2.score()) + " apples picked!", 80, 90, 50, 150)
+            }
+            if (info.player1.score() > info.highScore() || info.player2.score() > info.highScore()) {
+                story.printDialog("That's a new high score!!!", 80, 90, 50, 150)
+            }
+        } else {
+            animation.runMovementAnimation(
+            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)),
+            animation.animationPresets(animation.bobbing),
+            1000,
+            true
+            )
+            story.printDialog("You picked a total of " + convertToText(info.player1.score()) + " apples!", 80, 90, 50, 150)
+            if (info.player1.score() > info.highScore()) {
+                story.printDialog("That's a new high score!!!", 80, 90, 50, 150)
+            }
         }
         game.gameOver(true)
     })
