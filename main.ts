@@ -33,6 +33,7 @@ function scene_setup_farmer_next (dir2: number, player2: number) {
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Apple, function (sprite, otherSprite) {
     if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.One)) {
         if (player_1_bucket.value == 5) {
+            music.play(music.melodyPlayable(music.knock), music.PlaybackMode.UntilDone)
             otherSprite.setFlag(SpriteFlag.Ghost, true)
             otherSprite.setFlag(SpriteFlag.DestroyOnWall, true)
             if (otherSprite.x < 60) {
@@ -43,9 +44,11 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Apple, function (sprite, otherSp
         } else {
             sprites.destroy(otherSprite)
             player_1_bucket.value += 1
+            music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.InBackground)
         }
     } else {
         if (player_2_bucket.value == 5) {
+            music.play(music.melodyPlayable(music.knock), music.PlaybackMode.UntilDone)
             otherSprite.setFlag(SpriteFlag.Ghost, true)
             otherSprite.setFlag(SpriteFlag.DestroyOnWall, true)
             if (otherSprite.x < 60) {
@@ -56,6 +59,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Apple, function (sprite, otherSp
         } else {
             sprites.destroy(otherSprite)
             player_2_bucket.value += 1
+            music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.InBackground)
         }
     }
 })
@@ -157,13 +161,19 @@ function scene_game_jump_player (player2: Sprite) {
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Bin, function (sprite, otherSprite) {
     if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.One) && sprites.readDataNumber(otherSprite, "player") == 1) {
-        mp.changePlayerStateBy(mp.playerSelector(mp.PlayerNumber.One), MultiplayerState.score, player_1_bucket.value)
-        player_1_bucket.value = 0
-        scene_game_update_bin(otherSprite, mp.getPlayerState(mp.playerSelector(mp.PlayerNumber.One), MultiplayerState.score))
+        if (player_1_bucket.value > 0) {
+            mp.changePlayerStateBy(mp.playerSelector(mp.PlayerNumber.One), MultiplayerState.score, player_1_bucket.value)
+            player_1_bucket.value = 0
+            music.play(music.melodyPlayable(music.magicWand), music.PlaybackMode.InBackground)
+            scene_game_update_bin(otherSprite, mp.getPlayerState(mp.playerSelector(mp.PlayerNumber.One), MultiplayerState.score))
+        }
     } else if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.Two) && sprites.readDataNumber(otherSprite, "player") == 2) {
-        mp.changePlayerStateBy(mp.playerSelector(mp.PlayerNumber.Two), MultiplayerState.score, player_2_bucket.value)
-        player_2_bucket.value = 0
-        scene_game_update_bin(otherSprite, mp.getPlayerState(mp.playerSelector(mp.PlayerNumber.Two), MultiplayerState.score))
+        if (player_2_bucket.value > 0) {
+            mp.changePlayerStateBy(mp.playerSelector(mp.PlayerNumber.Two), MultiplayerState.score, player_2_bucket.value)
+            player_2_bucket.value = 0
+            music.play(music.melodyPlayable(music.magicWand), music.PlaybackMode.InBackground)
+            scene_game_update_bin(otherSprite, mp.getPlayerState(mp.playerSelector(mp.PlayerNumber.Two), MultiplayerState.score))
+        }
     }
 })
 function scene_intro_button (players_selected: number) {
@@ -351,6 +361,9 @@ function scene_game () {
     }
     story.printDialog("Your basket can only hold 5 at a time.  Fill the bin when your basket is full.", 90, 90, 50, 130)
     scene_game_playing = 1
+    music.play(music.createSong(hex`003c000a64020100001c00010a006400f40164000004000000000000000000000000000500000436010000210002202421004200021b20430054000224275400650002222664007500021f2275000b010220240b012c010220242c014d01021b204e015f0101275e016f0101266f0180010224278001a101022226a101c201022427c30116020220241602370202202437025802021b2059026a020224276a027b020222267a028b02021f228b0221030220242103420302202442036303021b20640375030127740385030126850396030127b703d803022427d9032c040222262c044d040220254d046e04021d206f04b2040125c204d3040127d304e404022227e4043705021f223705580502202558057905021d208a059b050127ef05420601274206630602202564068506021d208506c8060125d806e9060127e906fa06022227fa064d07021f224d076e070220256e078f07021d20a107b2070127`), music.PlaybackMode.LoopingInBackground)
+    music.play(music.createSong(hex`003c000a64020107001c00020a006400f40164000004000000000000000000000000000000000320013b044c0401314c045d04012c5d046e0401297e048f0401318f04a004012ca004b1040129b004c1040133c104d204012ed204e304012be204f3040127f3040405013304051505012e14052505012b25053605012747055805013157056805012c68057905012989059a0501319a05ab05012cab05bc050129bc05cd050133cc05dd05012edd05ee05012bee05ff050127fe050f0601330f062006012e20063106012b30064106012752066306013162067306012c7306840601299506a6060131a506b606012cb606c7060129c706d8060133d706e806012ee806f906012bf9060a0701270a071b0701331a072b07012e2b073c07012b3c074d0701275d076e0701316e077f07012c7e078f070129a007b1070131b007c107012cc107d0070129`), music.PlaybackMode.LoopingInBackground)
+    music.play(music.createSong(hex`003c000a64020105001c000f0a006400f4010a00000400000000000000000000000000000000020e010000210001202100420001204300640001206400850001208600a7000120a700c8000120c800e9000120ea000b0101200b012c0101202d014e0101204e016f0101206f01900101209101b2010120b201d3010120d401f5010120f5011602012016023702012038025902012059027a0201207b029c0201209c02bd020120bd02de020120df02000301200003210301202203330301203203430301204303540301205403650301206403750301207503860301208603970301209603b7030127b803d9030124d903ea030122ea03fb030122fb030c0401220b041c0401221c042d0401222d04b2040125b204370501273805bd050125bd05420601274206c7060125c8064d0701274d07d0070125`), music.PlaybackMode.LoopingInBackground)
     info.startCountdown(60)
 }
 controller.player2.onButtonEvent(ControllerButton.Right, ControllerButtonEvent.Pressed, function () {
@@ -442,7 +455,7 @@ let farmer_p2 = 0
 let farmer_p1 = 0
 let players = 0
 let scene_current = 0
-// current scene is used to manage events across different scenes.  
+// current scene is used to manage events across different scenes.
 // 0 = intro
 // 1 = setup
 // 2 = game play
