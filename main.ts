@@ -34,7 +34,7 @@ function scene_setup_farmer_next (dir2: number, player2: number) {
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Apple, function (sprite, otherSprite) {
     if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.One)) {
         if (player_1_bucket.value == 5) {
-            music.play(music.melodyPlayable(music.knock), music.PlaybackMode.UntilDone)
+            music.play(music.melodyPlayable(music.knock), music.PlaybackMode.InBackground)
             otherSprite.setFlag(SpriteFlag.Ghost, true)
             otherSprite.setFlag(SpriteFlag.DestroyOnWall, true)
             if (otherSprite.x < 60) {
@@ -49,7 +49,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Apple, function (sprite, otherSp
         }
     } else {
         if (player_2_bucket.value == 5) {
-            music.play(music.melodyPlayable(music.knock), music.PlaybackMode.UntilDone)
+            music.play(music.melodyPlayable(music.knock), music.PlaybackMode.InBackground)
             otherSprite.setFlag(SpriteFlag.Ghost, true)
             otherSprite.setFlag(SpriteFlag.DestroyOnWall, true)
             if (otherSprite.x < 60) {
@@ -201,7 +201,7 @@ function scene_game () {
         sprite_apple.setFlag(SpriteFlag.AutoDestroy, true)
         sprite_apple.setScale(randint(0.4, 0.7), ScaleAnchor.Middle)
         sprite_apple_x = randint(30, 130)
-        sprite_apple.setPosition(sprite_apple_x, 10)
+        sprite_apple.setPosition(sprite_apple_x, randint(0, 15))
         sprite_apple.ay = randint(100, 200)
     }
     story.printDialog("Get them before they hit the ground. ", 80, 50, 70, 150)
@@ -239,11 +239,42 @@ function scene_game () {
             player_2_bucket.setLabel("P2")
         }
     }
-    story.printDialog("Your basket can only hold 5 at a time.  Fill the bin when your basket is full.", 90, 90, 50, 130)
+    story.printDialog("Your basket can only hold 5 at a time.  Fill the bin when your basket is full.", 80, 90, 50, 140)
+    sprite_worm = sprites.create(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `, SpriteKind.Player)
+    sprite_worm.setScale(2, ScaleAnchor.Middle)
+    animation.runImageAnimation(
+    sprite_worm,
+    assets.animation`sprite_worm`,
+    100,
+    true
+    )
+    sprite_worm.setPosition(40, 60)
+    story.printDialog("Watch out for worms.  They will make you drop your basket.", 80, 90, 50, 140)
+    sprites.destroy(sprite_worm)
     scene_game_playing = 1
     music.play(music.createSong(assets.song`game-play`), music.PlaybackMode.InBackground)
     info.startCountdown(60)
 }
+scene.onHitWall(SpriteKind.Enemy, function (sprite, location) {
+    sprites.destroy(sprite)
+})
 controller.player2.onButtonEvent(ControllerButton.Right, ControllerButtonEvent.Pressed, function () {
     if (scene_current == 1) {
         scene_setup_farmer_next(1, 2)
@@ -307,10 +338,24 @@ controller.player1.onButtonEvent(ControllerButton.Left, ControllerButtonEvent.Pr
         scene_setup_farmer_next(-1, 1)
     }
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite, effects.fire, 500)
+    music.play(music.melodyPlayable(music.zapped), music.PlaybackMode.InBackground)
+    if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.One)) {
+        if (player_1_bucket.value > 0) {
+            player_1_bucket.value = 0
+        }
+    } else {
+        if (player_2_bucket.value > 1) {
+            player_2_bucket.value = 0
+        }
+    }
+})
 let sprite_sky: Sprite = null
 let sprite_sky_type = 0
 let player_2_dx = 0
 let player_1_dx = 0
+let sprite_worm: Sprite = null
 let player_2_bin: Sprite = null
 let player_1_bin: Sprite = null
 let sprite_apple_x = 0
@@ -423,5 +468,38 @@ forever(function () {
         sprite_apple.vy = randint(20, 60)
         sprite_apple.y = 0
         sprite_apple.x = randint(20, 140)
+    }
+})
+forever(function () {
+    if (scene_game_playing == 1) {
+        pause(randint(2000, 5000))
+        sprite_worm = sprites.create(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            `, SpriteKind.Enemy)
+        animation.runImageAnimation(
+        sprite_worm,
+        assets.animation`sprite_worm`,
+        100,
+        true
+        )
+        sprite_worm.ay = randint(20, 60)
+        sprite_worm.vy = randint(20, 60)
+        sprite_worm.y = 0
+        sprite_worm.x = randint(20, 140)
     }
 })
