@@ -64,6 +64,11 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Apple, function (sprite, otherSp
         }
     }
 })
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (scene_current == 2) {
+        scene_game_cancel_text()
+    }
+})
 function scene_game_update_bin (bin: Sprite, score: number) {
     if (score < 5) {
         bin.setImage(assets.image`bin_0`)
@@ -87,6 +92,7 @@ controller.player2.onButtonEvent(ControllerButton.A, ControllerButtonEvent.Press
     } else if (scene_current == 1) {
         scene_setup_button(2)
     } else if (scene_current == 2) {
+        scene_game_cancel_text()
         scene_game_jump_player(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)))
     }
 })
@@ -156,8 +162,10 @@ function scene_setup_farmer (farmer_sprite_id: number) {
     sprite_setup_right.setPosition(130, 60)
 }
 function scene_game_jump_player (player2: Sprite) {
-    if (player2.vy == 0) {
-        player2.vy = -160
+    if (scene_game_playing == 1) {
+        if (player2.vy == 0) {
+            player2.vy = -160
+        }
     }
 }
 info.onCountdownEnd(function () {
@@ -209,7 +217,7 @@ info.onCountdownEnd(function () {
                 animation.runMovementAnimation(
                 mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)),
                 animation.animationPresets(animation.bobbing),
-                5000,
+                500,
                 true
                 )
                 animation.runMovementAnimation(
@@ -223,7 +231,7 @@ info.onCountdownEnd(function () {
                 animation.runMovementAnimation(
                 mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)),
                 animation.animationPresets(animation.bobbing),
-                1000,
+                500,
                 true
                 )
                 story.printDialog("Player 1 wins with a total of " + convertToText(info.player1.score()) + " apples picked!", 80, 90, 50, 150)
@@ -231,7 +239,7 @@ info.onCountdownEnd(function () {
                 animation.runMovementAnimation(
                 mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)),
                 animation.animationPresets(animation.bobbing),
-                1000,
+                500,
                 true
                 )
                 story.printDialog("Player 2 wins with a total of " + convertToText(info.player2.score()) + " apples picked!", 80, 90, 50, 150)
@@ -243,7 +251,7 @@ info.onCountdownEnd(function () {
             animation.runMovementAnimation(
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)),
             animation.animationPresets(animation.bobbing),
-            1000,
+            500,
             true
             )
             story.printDialog("You picked a total of " + convertToText(info.player1.score()) + " apples!", 80, 90, 50, 150)
@@ -419,6 +427,7 @@ controller.player1.onButtonEvent(ControllerButton.A, ControllerButtonEvent.Press
     } else if (scene_current == 1) {
         scene_setup_button(1)
     } else if (scene_current == 2) {
+        scene_game_cancel_text()
         scene_game_jump_player(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)))
     }
 })
@@ -427,6 +436,12 @@ controller.player1.onButtonEvent(ControllerButton.B, ControllerButtonEvent.Press
         scene_intro_button(2)
     }
 })
+function scene_game_cancel_text () {
+    if (scene_game_playing == 0) {
+        story.clearAllText()
+        story.cancelAllCutscenes()
+    }
+}
 controller.player1.onButtonEvent(ControllerButton.Left, ControllerButtonEvent.Pressed, function () {
     if (scene_current == 1) {
         scene_setup_farmer_next(-1, 1)
