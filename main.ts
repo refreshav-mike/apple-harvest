@@ -5,6 +5,7 @@ namespace SpriteKind {
     export const Apple = SpriteKind.create()
     export const Bin = SpriteKind.create()
     export const Sky = SpriteKind.create()
+    export const Coffee = SpriteKind.create()
 }
 namespace StatusBarKind {
     export const Apples = StatusBarKind.create()
@@ -86,6 +87,21 @@ function scene_game_update_bin (bin: Sprite, score: number) {
         bin.setImage(assets.image`bin_6`)
     }
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Coffee, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite, effects.smiles, 500)
+    music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.InBackground)
+    if (mp.getPlayerProperty(mp.getPlayerBySprite(sprite), mp.PlayerProperty.Number) == 1) {
+        player_1_dx_multiplier = 2
+    } else {
+        player_2_dx_multiplier = 2
+    }
+    pause(8000)
+    if (mp.getPlayerProperty(mp.getPlayerBySprite(sprite), mp.PlayerProperty.Number) == 1) {
+        player_1_dx_multiplier = 1
+    } else {
+        player_2_dx_multiplier = 1
+    }
+})
 controller.player2.onButtonEvent(ControllerButton.A, ControllerButtonEvent.Pressed, function () {
     if (scene_current == 0) {
         scene_intro_button(1)
@@ -176,6 +192,7 @@ info.onCountdownEnd(function () {
     sprites.destroyAllSpritesOfKind(SpriteKind.Player)
     sprites.destroyAllSpritesOfKind(SpriteKind.Sky)
     sprites.destroyAllSpritesOfKind(SpriteKind.Bin)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Coffee)
     music.stopAllSounds()
     scene.setBackgroundColor(9)
     scene.setBackgroundImage(img`
@@ -197,6 +214,7 @@ info.onCountdownEnd(function () {
         . . . . . . . . . . . . . . . . 
         `)
     tiles.setCurrentTilemap(tilemap`level5`)
+    effects.confetti.startScreenEffect()
     story.startCutscene(function () {
         if (players > 1) {
             mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.One), sprites.create(farmers_sprites_64[farmer_p1], SpriteKind.Player))
@@ -226,6 +244,8 @@ info.onCountdownEnd(function () {
                 1000,
                 true
                 )
+                mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).startEffect(effects.smiles)
+                mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).startEffect(effects.smiles)
                 story.printDialog("It's a tie with a total of " + convertToText(info.player1.score()) + " apples picked!", 80, 90, 50, 150)
             } else if (info.player1.score() > info.player2.score()) {
                 animation.runMovementAnimation(
@@ -234,6 +254,7 @@ info.onCountdownEnd(function () {
                 500,
                 true
                 )
+                mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).startEffect(effects.smiles)
                 story.printDialog("Player 1 wins with a total of " + convertToText(info.player1.score()) + " apples picked!", 80, 90, 50, 150)
             } else {
                 animation.runMovementAnimation(
@@ -242,9 +263,11 @@ info.onCountdownEnd(function () {
                 500,
                 true
                 )
+                mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).startEffect(effects.smiles)
                 story.printDialog("Player 2 wins with a total of " + convertToText(info.player2.score()) + " apples picked!", 80, 90, 50, 150)
             }
             if (info.player1.score() > info.highScore() || info.player2.score() > info.highScore()) {
+                music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.InBackground)
                 story.printDialog("That's a new high score!!!", 80, 90, 50, 150)
             }
         } else {
@@ -254,6 +277,7 @@ info.onCountdownEnd(function () {
             500,
             true
             )
+            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).startEffect(effects.smiles)
             story.printDialog("You picked a total of " + convertToText(info.player1.score()) + " apples!", 80, 90, 50, 150)
             if (info.player1.score() > info.highScore()) {
                 story.printDialog("That's a new high score!!!", 80, 90, 50, 150)
@@ -311,6 +335,7 @@ function scene_game () {
     mp.setPlayerState(mp.playerSelector(mp.PlayerNumber.One), MultiplayerState.score, 0)
     mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).ay = 400
     mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setFlag(SpriteFlag.StayInScreen, true)
+    player_1_dx_multiplier = 1
     player_1_bucket = statusbars.create(20, 4, StatusBarKind.Apples)
     player_1_bucket.value = 0
     player_1_bucket.max = 5
@@ -327,6 +352,7 @@ function scene_game () {
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).x = 120
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).x = 40
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).setFlag(SpriteFlag.StayInScreen, true)
+        player_2_dx_multiplier = 1
         player_2_bucket = statusbars.create(20, 4, StatusBarKind.Apples)
         player_2_bucket.value = 0
         player_2_bucket.max = 5
@@ -386,14 +412,14 @@ function scene_game_move_players () {
     if (mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).vy != 0) {
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).x += player_1_dx
     } else {
-        player_1_dx = controller.player1.dx()
+        player_1_dx = controller.player1.dx(100 * player_1_dx_multiplier)
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).x += player_1_dx
     }
     if (players > 1) {
         if (mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).vy != 0) {
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).x += player_2_dx
         } else {
-            player_2_dx = controller.player2.dx()
+            player_2_dx = controller.player2.dx(100 * player_2_dx_multiplier)
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).x += player_2_dx
         }
     }
@@ -436,6 +462,9 @@ controller.player1.onButtonEvent(ControllerButton.B, ControllerButtonEvent.Press
         scene_intro_button(2)
     }
 })
+scene.onHitWall(SpriteKind.Coffee, function (sprite, location) {
+    sprites.destroy(sprite)
+})
 function scene_game_cancel_text () {
     if (scene_game_playing == 0) {
         story.clearAllText()
@@ -466,6 +495,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
         }
     }
 })
+let sprite_coffee: Sprite = null
 let sprite_sky: Sprite = null
 let sprite_sky_type = 0
 let player_2_dx = 0
@@ -483,6 +513,8 @@ let sprite_start_2: TextSprite = null
 let sprite_start_1: TextSprite = null
 let sprite_apple: Sprite = null
 let sprite_title: Sprite = null
+let player_2_dx_multiplier = 0
+let player_1_dx_multiplier = 0
 let player_2_bucket: StatusBarSprite = null
 let player_1_bucket: StatusBarSprite = null
 let scene_setup_farmer_sprite = 0
@@ -537,7 +569,6 @@ game.onUpdate(function () {
 })
 forever(function () {
     if (scene_current == 2 && scene_game_playing == 1) {
-        pause(randint(1200, 2000))
         sprite_sky_type = randint(0, 3)
         if (sprite_sky_type == 0) {
             sprite_sky = sprites.create(assets.image`sprite_cloud`, SpriteKind.Sky)
@@ -574,10 +605,10 @@ forever(function () {
         sprite_sky.setFlag(SpriteFlag.AutoDestroy, true)
         sprite_sky.setFlag(SpriteFlag.Ghost, true)
     }
+    pause(randint(1200, 2000))
 })
 forever(function () {
     if (scene_current == 2 && scene_game_playing == 1) {
-        pause(randint(800, 1200))
         sprite_apple = sprites.create(assets.image`sprite_apple`, SpriteKind.Apple)
         sprite_apple.setScale(randint(0.25, 0.75), ScaleAnchor.Middle)
         sprite_apple.ay = randint(20, 60)
@@ -585,10 +616,16 @@ forever(function () {
         sprite_apple.y = 0
         sprite_apple.x = randint(20, 140)
     }
+    if (info.countdown() >= 30) {
+        pause(randint(800, 1200))
+    } else if (info.countdown() >= 20) {
+        pause(randint(600, 800))
+    } else {
+        pause(randint(500, 600))
+    }
 })
 forever(function () {
     if (scene_current == 2 && scene_game_playing == 1) {
-        pause(randint(2000, 5000))
         sprite_worm = sprites.create(img`
             . . . . . . . . . . . . . . . . 
             . . . . . . . . . . . . . . . . 
@@ -618,4 +655,15 @@ forever(function () {
         sprite_worm.y = 0
         sprite_worm.x = randint(20, 140)
     }
+    pause(randint(2000, 5000))
+})
+forever(function () {
+    if (scene_current == 2 && scene_game_playing == 1) {
+        sprite_coffee = sprites.create(assets.image`coffee`, SpriteKind.Coffee)
+        sprite_coffee.ay = randint(20, 60)
+        sprite_coffee.vy = randint(20, 60)
+        sprite_coffee.y = 0
+        sprite_coffee.x = randint(20, 140)
+    }
+    pause(randint(10000, 30000))
 })

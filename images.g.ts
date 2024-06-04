@@ -1022,6 +1022,25 @@ c b d d d d d 5 5 5 5 5 5 5 b .
 .........................................................ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc..............................................
 .........................................................ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc..............................................
 `;
+            case "image20":
+            case "coffee":return img`
+. . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . 
+. . . . f f f f f f . . . . . . 
+. . f f e e e e e e f f . . . . 
+. f e e e e e e e e e e f . f f 
+f e e e e e e e e e e e e f . f 
+f f e e e e e e e e e e f f . f 
+f 1 f f e e e e e e f f 1 f . f 
+f 1 1 1 f f f f f f 1 1 1 f . f 
+f 1 1 1 1 1 1 1 1 1 1 1 1 f . f 
+f 1 1 1 1 1 1 1 1 1 1 1 1 f . f 
+. f 1 1 1 1 1 1 1 1 1 1 f . f f 
+. . f 1 1 1 1 1 1 1 1 f . . . . 
+. . . f 1 1 1 1 1 1 1 f . . . . 
+. . . f f f f f f f f f . . . . 
+`;
         }
         return null;
     })
