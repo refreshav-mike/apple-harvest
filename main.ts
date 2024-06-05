@@ -6,6 +6,7 @@ namespace SpriteKind {
     export const Bin = SpriteKind.create()
     export const Sky = SpriteKind.create()
     export const Coffee = SpriteKind.create()
+    export const Clock = SpriteKind.create()
 }
 namespace StatusBarKind {
     export const Apples = StatusBarKind.create()
@@ -32,6 +33,13 @@ function scene_setup_farmer_next (dir2: number, player2: number) {
         scene_setup_farmer(scene_setup_farmer_sprite)
     }
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Clock, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite, effects.smiles, 500)
+    music.stopAllSounds()
+    music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.UntilDone)
+    info.changeCountdownBy(10)
+    scene_game_music()
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Apple, function (sprite, otherSprite) {
     if (mp.getPlayerBySprite(sprite) == mp.playerSelector(mp.PlayerNumber.One)) {
         if (player_1_bucket.value == 5) {
@@ -193,6 +201,7 @@ info.onCountdownEnd(function () {
     sprites.destroyAllSpritesOfKind(SpriteKind.Sky)
     sprites.destroyAllSpritesOfKind(SpriteKind.Bin)
     sprites.destroyAllSpritesOfKind(SpriteKind.Coffee)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Clock)
     music.stopAllSounds()
     scene.setBackgroundColor(9)
     scene.setBackgroundImage(img`
@@ -248,6 +257,7 @@ info.onCountdownEnd(function () {
                 mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).startEffect(effects.smiles)
                 story.printDialog("It's a tie with a total of " + convertToText(info.player1.score()) + " apples picked!", 80, 90, 50, 150)
             } else if (info.player1.score() > info.player2.score()) {
+                story.printDialog("" + convertToText(info.player2.score()) + " apples picked P2  Good attempt.", 80, 90, 50, 150)
                 animation.runMovementAnimation(
                 mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)),
                 animation.animationPresets(animation.bobbing),
@@ -257,6 +267,7 @@ info.onCountdownEnd(function () {
                 mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).startEffect(effects.smiles)
                 story.printDialog("Player 1 wins with a total of " + convertToText(info.player1.score()) + " apples picked!", 80, 90, 50, 150)
             } else {
+                story.printDialog("" + convertToText(info.player1.score()) + " apples picked P1  Good attempt.", 80, 90, 50, 150)
                 animation.runMovementAnimation(
                 mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)),
                 animation.animationPresets(animation.bobbing),
@@ -397,8 +408,8 @@ function scene_game () {
     story.printDialog("Watch out for worms.  They will make you drop your basket.", 80, 90, 50, 140)
     sprites.destroy(sprite_worm)
     scene_game_playing = 1
-    music.play(music.createSong(assets.song`game-play`), music.PlaybackMode.InBackground)
     info.startCountdown(60)
+    scene_game_music()
 }
 scene.onHitWall(SpriteKind.Enemy, function (sprite, location) {
     sprites.destroy(sprite)
@@ -408,6 +419,10 @@ controller.player2.onButtonEvent(ControllerButton.Right, ControllerButtonEvent.P
         scene_setup_farmer_next(1, 2)
     }
 })
+function scene_game_music () {
+    music.stopAllSounds()
+    music.play(music.createSong(assets.song`game-play`), music.PlaybackMode.InBackground)
+}
 function scene_game_move_players () {
     if (mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).vy != 0) {
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).x += player_1_dx
@@ -495,6 +510,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
         }
     }
 })
+let sprite_clock: Sprite = null
 let sprite_coffee: Sprite = null
 let sprite_sky: Sprite = null
 let sprite_sky_type = 0
@@ -569,46 +585,6 @@ game.onUpdate(function () {
 })
 forever(function () {
     if (scene_current == 2 && scene_game_playing == 1) {
-        sprite_sky_type = randint(0, 3)
-        if (sprite_sky_type == 0) {
-            sprite_sky = sprites.create(assets.image`sprite_cloud`, SpriteKind.Sky)
-            sprite_sky.x = 0
-            sprite_sky.vx = randint(20, 60)
-        } else if (sprite_sky_type == 1) {
-            sprite_sky = sprites.create(assets.image`sprite_cloud`, SpriteKind.Sky)
-            sprite_sky.x = 160
-            sprite_sky.vx = randint(-60, -20)
-        } else if (sprite_sky_type == 2) {
-            sprite_sky = sprites.create(assets.image`sprite_bird`, SpriteKind.Sky)
-            animation.runImageAnimation(
-            sprite_sky,
-            assets.animation`sprite_sky_bird_right`,
-            200,
-            true
-            )
-            sprite_sky.x = 0
-            sprite_sky.vx = randint(20, 60)
-        } else {
-            sprite_sky = sprites.create(assets.image`sprite_bird`, SpriteKind.Sky)
-            animation.runImageAnimation(
-            sprite_sky,
-            assets.animation`sprite_sky_bird_left`,
-            200,
-            true
-            )
-            sprite_sky.x = 160
-            sprite_sky.vx = randint(-60, -20)
-        }
-        sprite_sky.setScale(randint(0.5, 1), ScaleAnchor.Middle)
-        sprite_sky.y = randint(1, 20)
-        sprite_sky.z = randint(1, 3)
-        sprite_sky.setFlag(SpriteFlag.AutoDestroy, true)
-        sprite_sky.setFlag(SpriteFlag.Ghost, true)
-    }
-    pause(randint(1200, 2000))
-})
-forever(function () {
-    if (scene_current == 2 && scene_game_playing == 1) {
         sprite_apple = sprites.create(assets.image`sprite_apple`, SpriteKind.Apple)
         sprite_apple.setScale(randint(0.25, 0.75), ScaleAnchor.Middle)
         sprite_apple.ay = randint(20, 60)
@@ -659,11 +635,63 @@ forever(function () {
 })
 forever(function () {
     if (scene_current == 2 && scene_game_playing == 1) {
+        sprite_sky_type = randint(0, 3)
+        if (sprite_sky_type == 0) {
+            sprite_sky = sprites.create(assets.image`sprite_cloud`, SpriteKind.Sky)
+            sprite_sky.x = 0
+            sprite_sky.vx = randint(20, 60)
+        } else if (sprite_sky_type == 1) {
+            sprite_sky = sprites.create(assets.image`sprite_cloud`, SpriteKind.Sky)
+            sprite_sky.x = 160
+            sprite_sky.vx = randint(-60, -20)
+        } else if (sprite_sky_type == 2) {
+            sprite_sky = sprites.create(assets.image`sprite_bird`, SpriteKind.Sky)
+            animation.runImageAnimation(
+            sprite_sky,
+            assets.animation`sprite_sky_bird_right`,
+            200,
+            true
+            )
+            sprite_sky.x = 0
+            sprite_sky.vx = randint(20, 60)
+        } else {
+            sprite_sky = sprites.create(assets.image`sprite_bird`, SpriteKind.Sky)
+            animation.runImageAnimation(
+            sprite_sky,
+            assets.animation`sprite_sky_bird_left`,
+            200,
+            true
+            )
+            sprite_sky.x = 160
+            sprite_sky.vx = randint(-60, -20)
+        }
+        sprite_sky.setScale(randint(0.5, 1), ScaleAnchor.Middle)
+        sprite_sky.y = randint(1, 20)
+        sprite_sky.z = randint(1, 3)
+        sprite_sky.setFlag(SpriteFlag.AutoDestroy, true)
+        sprite_sky.setFlag(SpriteFlag.Ghost, true)
+    }
+    pause(randint(1200, 2000))
+})
+forever(function () {
+    pauseUntil(() => scene_current == 2 && scene_game_playing == 1)
+    pause(randint(30000, 60000))
+    if (scene_current == 2 && scene_game_playing == 1) {
         sprite_coffee = sprites.create(assets.image`coffee`, SpriteKind.Coffee)
         sprite_coffee.ay = randint(20, 60)
         sprite_coffee.vy = randint(20, 60)
         sprite_coffee.y = 0
         sprite_coffee.x = randint(20, 140)
     }
-    pause(randint(10000, 30000))
+})
+forever(function () {
+    pauseUntil(() => scene_current == 2 && scene_game_playing == 1)
+    pause(randint(30000, 60000))
+    if (scene_current == 2 && scene_game_playing == 1) {
+        sprite_clock = sprites.create(assets.image`clock`, SpriteKind.Clock)
+        sprite_clock.ay = randint(20, 60)
+        sprite_clock.vy = randint(20, 60)
+        sprite_clock.y = 0
+        sprite_clock.x = randint(20, 140)
+    }
 })
