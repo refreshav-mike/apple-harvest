@@ -37,6 +37,7 @@ function scene_setup_farmer_next (dir2: number, player2: number) {
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Lightning, function (sprite, otherSprite) {
     sprites.destroy(otherSprite, effects.fire, 500)
     music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.UntilDone)
+    pause(randint(80, 100))
     for (let index = 0; index < randint(20, 60); index++) {
         sprite_apple = sprites.create(assets.image`sprite_apple`, SpriteKind.Apple)
         sprite_apple.setScale(randint(0.25, 0.75), ScaleAnchor.Middle)
@@ -218,6 +219,7 @@ info.onCountdownEnd(function () {
     sprites.destroyAllSpritesOfKind(SpriteKind.Bin)
     sprites.destroyAllSpritesOfKind(SpriteKind.Coffee)
     sprites.destroyAllSpritesOfKind(SpriteKind.Clock)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Lightning)
     music.stopAllSounds()
     scene.setBackgroundColor(9)
     scene.setBackgroundImage(img`
@@ -242,13 +244,19 @@ info.onCountdownEnd(function () {
     effects.confetti.startScreenEffect()
     story.startCutscene(function () {
         if (players > 1) {
+            player_1_name = textsprite.create(farmers_names[farmer_p1], 0, 14)
+            player_1_name.setPosition(32, 20)
             mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.One), sprites.create(farmers_sprites_64[farmer_p1], SpriteKind.Player))
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setPosition(32, 60)
+            player_2_name = textsprite.create(farmers_names[farmer_p2], 0, 6)
+            player_2_name.setPosition(128, 20)
             mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two), sprites.create(farmers_sprites_64[farmer_p2], SpriteKind.Player))
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).setPosition(128, 60)
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setFlag(SpriteFlag.Ghost, true)
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).setFlag(SpriteFlag.Ghost, true)
         } else {
+            player_1_name = textsprite.create(farmers_names[farmer_p1], 0, 14)
+            player_1_name.setPosition(32, 20)
             mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.One), sprites.create(farmers_sprites_64[farmer_p1], SpriteKind.Player))
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setPosition(32, 60)
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setFlag(SpriteFlag.Ghost, true)
@@ -447,8 +455,10 @@ controller.player2.onButtonEvent(ControllerButton.Right, ControllerButtonEvent.P
     }
 })
 function scene_game_music () {
-    music.stopAllSounds()
-    music.play(music.createSong(assets.song`game-play`), music.PlaybackMode.InBackground)
+    if (scene_current == 2 && scene_game_playing == 1) {
+        music.stopAllSounds()
+        music.play(music.createSong(assets.song`game-play`), music.PlaybackMode.InBackground)
+    }
 }
 function scene_game_move_players () {
     if (mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).vy != 0) {
@@ -555,6 +565,8 @@ let sprite_worm: Sprite = null
 let player_2_bin: Sprite = null
 let player_1_bin: Sprite = null
 let sprite_apple_x = 0
+let player_2_name: TextSprite = null
+let player_1_name: TextSprite = null
 let sprite_setup_right: Sprite = null
 let sprite_setup_left: Sprite = null
 let sprite_farmer: Sprite = null
