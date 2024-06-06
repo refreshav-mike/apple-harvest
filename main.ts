@@ -7,6 +7,7 @@ namespace SpriteKind {
     export const Sky = SpriteKind.create()
     export const Coffee = SpriteKind.create()
     export const Clock = SpriteKind.create()
+    export const Lightning = SpriteKind.create()
 }
 namespace StatusBarKind {
     export const Apples = StatusBarKind.create()
@@ -33,6 +34,19 @@ function scene_setup_farmer_next (dir2: number, player2: number) {
         scene_setup_farmer(scene_setup_farmer_sprite)
     }
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Lightning, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite, effects.fire, 500)
+    music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.UntilDone)
+    for (let index = 0; index < randint(20, 60); index++) {
+        sprite_apple = sprites.create(assets.image`sprite_apple`, SpriteKind.Apple)
+        sprite_apple.setScale(randint(0.25, 0.75), ScaleAnchor.Middle)
+        sprite_apple.ay = randint(30, 70)
+        sprite_apple.vy = randint(30, 70)
+        sprite_apple.y = 0
+        sprite_apple.x = sprite.x
+        pause(randint(80, 100))
+    }
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Clock, function (sprite, otherSprite) {
     sprites.destroy(otherSprite, effects.smiles, 500)
     music.stopAllSounds()
@@ -526,7 +540,11 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
         }
     }
 })
+scene.onHitWall(SpriteKind.Lightning, function (sprite, location) {
+    sprites.destroy(sprite)
+})
 let sprite_clock: Sprite = null
+let sprite_lightning: Sprite = null
 let sprite_coffee: Sprite = null
 let sprite_sky: Sprite = null
 let sprite_sky_type = 0
@@ -544,12 +562,12 @@ let sprite_setup_farmer: TextSprite = null
 let sprite_setup_title: TextSprite = null
 let sprite_start_2: TextSprite = null
 let sprite_start_1: TextSprite = null
-let sprite_apple: Sprite = null
 let sprite_title: Sprite = null
 let player_2_dx_multiplier = 0
 let player_1_dx_multiplier = 0
 let player_2_bucket: StatusBarSprite = null
 let player_1_bucket: StatusBarSprite = null
+let sprite_apple: Sprite = null
 let scene_setup_farmer_sprite = 0
 let scene_setup_players: number[] = []
 let farmers_sprites_32: Image[] = []
@@ -692,13 +710,24 @@ forever(function () {
 })
 forever(function () {
     pauseUntil(() => scene_current == 2 && scene_game_playing == 1)
-    pause(randint(20000, 40000))
+    pause(randint(10000, 20000))
     if (scene_current == 2 && scene_game_playing == 1) {
         sprite_coffee = sprites.create(assets.image`coffee`, SpriteKind.Coffee)
         sprite_coffee.ay = randint(20, 60)
         sprite_coffee.vy = randint(20, 60)
         sprite_coffee.y = 0
         sprite_coffee.x = randint(20, 140)
+    }
+})
+forever(function () {
+    pauseUntil(() => scene_current == 2 && scene_game_playing == 1)
+    pause(randint(20000, 30000))
+    if (scene_current == 2 && scene_game_playing == 1) {
+        sprite_lightning = sprites.create(assets.image`lightning`, SpriteKind.Lightning)
+        sprite_lightning.ay = randint(20, 60)
+        sprite_lightning.vy = randint(20, 60)
+        sprite_lightning.y = 0
+        sprite_lightning.x = randint(20, 140)
     }
 })
 forever(function () {
