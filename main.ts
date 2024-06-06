@@ -259,7 +259,7 @@ info.onCountdownEnd(function () {
                 mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).startEffect(effects.smiles)
                 story.printDialog("It's a tie with a total of " + convertToText(info.player1.score()) + " apples picked!", 80, 90, 50, 150)
             } else if (info.player1.score() > info.player2.score()) {
-                story.printDialog("" + convertToText(info.player2.score()) + " apples picked P2  Good attempt.", 80, 90, 50, 150)
+                story.printDialog("" + convertToText(info.player2.score()) + " apples picked Player 2.  Good attempt.", 80, 90, 50, 150)
                 animation.runMovementAnimation(
                 mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)),
                 animation.animationPresets(animation.bobbing),
@@ -269,7 +269,7 @@ info.onCountdownEnd(function () {
                 mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).startEffect(effects.smiles)
                 story.printDialog("Player 1 wins with a total of " + convertToText(info.player1.score()) + " apples picked!", 80, 90, 50, 150)
             } else {
-                story.printDialog("" + convertToText(info.player1.score()) + " apples picked P1  Good attempt.", 80, 90, 50, 150)
+                story.printDialog("" + convertToText(info.player1.score()) + " apples picked Player 1.  Good attempt.", 80, 90, 50, 150)
                 animation.runMovementAnimation(
                 mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)),
                 animation.animationPresets(animation.bobbing),
@@ -372,24 +372,7 @@ function scene_game () {
         player_2_bucket.setColor(2, 0)
         player_2_bucket.positionDirection(CollisionDirection.Bottom)
         player_2_bucket.attachToSprite(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)))
-        player_2_bin = sprites.create(img`
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            `, SpriteKind.Bin)
+        player_2_bin = sprites.create(assets.image`bin_0`, SpriteKind.Bin)
         sprites.setDataNumber(player_2_bin, "player", 2)
         player_2_bin.setPosition(scene.screenWidth() + 5, 100)
         if (farmer_p1 == farmer_p2) {
@@ -709,7 +692,7 @@ forever(function () {
 })
 forever(function () {
     pauseUntil(() => scene_current == 2 && scene_game_playing == 1)
-    pause(randint(3000, 6000))
+    pause(randint(20000, 40000))
     if (scene_current == 2 && scene_game_playing == 1) {
         sprite_coffee = sprites.create(assets.image`coffee`, SpriteKind.Coffee)
         sprite_coffee.ay = randint(20, 60)
