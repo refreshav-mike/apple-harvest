@@ -246,10 +246,14 @@ info.onCountdownEnd(function () {
         if (players > 1) {
             player_1_name = textsprite.create(farmers_names[farmer_p1], 0, 14)
             player_1_name.setPosition(32, 20)
+            player_1_locator = textsprite.create("Player 1", 0, 14)
+            player_1_locator.setPosition(32, 100)
             mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.One), sprites.create(farmers_sprites_64[farmer_p1], SpriteKind.Player))
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setPosition(32, 60)
             player_2_name = textsprite.create(farmers_names[farmer_p2], 0, 6)
             player_2_name.setPosition(128, 20)
+            player_2_locator = textsprite.create("Player 2", 0, 6)
+            player_2_locator.setPosition(128, 100)
             mp.setPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two), sprites.create(farmers_sprites_64[farmer_p2], SpriteKind.Player))
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).setPosition(128, 60)
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).setFlag(SpriteFlag.Ghost, true)
@@ -565,7 +569,9 @@ let sprite_worm: Sprite = null
 let player_2_bin: Sprite = null
 let player_1_bin: Sprite = null
 let sprite_apple_x = 0
+let player_2_locator: TextSprite = null
 let player_2_name: TextSprite = null
+let player_1_locator: TextSprite = null
 let player_1_name: TextSprite = null
 let sprite_setup_right: Sprite = null
 let sprite_setup_left: Sprite = null
