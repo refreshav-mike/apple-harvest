@@ -97,13 +97,15 @@ function scene_game_update_bin (bin: Sprite, score: number) {
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Coffee, function (sprite, otherSprite) {
     sprites.destroy(otherSprite, effects.smiles, 500)
-    music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.InBackground)
+    music.stopAllSounds()
+    music.play(music.createSong(hex`003c000a64020100001c00010a006400f401640000040000000000000000000000000005000004580400000b000803161307001e25030b00160001131600210004130b1e2520002b0001132b003600090a0705131e251e250a36004100011340005500030b131b4b005600050f131e250f56006b000307001361006c0003131e256b008000020b137600810003131b1b81008c00070a1307051e250a8c00970003131b1b9600a10004130b1e25a100ac000113ac00b70007010700131d2401b600c1000113c100cc0004130b1d24cc00d7000113d600e10009080705131d241d2408e100ec000113ec00f70003130b19f7000201050d131d240d01010601030007130c01170103131d2417012201020b1322012d01031319192c01370107080513071d2408370142010313191942014d01040b131d244c01570101135701620107031307001e250362016d0101136d01780104130b1e2577018201011382018d01090a0705131e251e250a8d01980101139801ad01030b131ba201ad01050f131e250fad01c20103070013b801c30103131e25c201d701020b13cd01d80103131b1bd801e301070a1307051e250ae301ee0103131b1bed01f80104130b1e25f8010302011303020e0207010700131d24010e02190201131802230204130b1d2423022e0201132e02390209080705131d241d240838024302011343024e0203130b194e025902050d131d240d59025e020300071363026e0203131d246e027902020b13790284020313191984028f0207080513071d24088e029902031319199902a402040b131d24a402af02020313ae02ae020803161307001e2503b902c4020113c402cf0204130b1e25cf02da020113d902e402090a0705131e251e250ae402ef020113ef020403030b131bfa020503050f131e250f04031903030700130f031a0303131e251a032f03020b1324032f0303131b1b2f033a03070a1307051e250a3a03450303131b1b4503500304130b1e254f035a0301135a03650307010700131d240165037003011370037b0304130b1d247a03850301138503900309080705131d241d240890039b0301139a03a50303130b19a503b003050d131d240db003b50303000713bb03c60303131d24c503d003020b13d003db0303131919db03e60307080513071d2408e603f10303131919f003fb03040b131d24fb03060401130604110407031307001e250310041b0401131b04260404130b1e2526043104011330043b04090a0705131e251e250a3b044604011346045b04030b131b51045c04050f131e250f5b047004030700136604710403131e2571048604020b137c04870403131b1b86049104070a1307051e250a91049c0403131b1b9c04a70404130b1e25a604b1040113b104bc0407010700131d2401bc04c7040113c704d20404130b1d24d104dc040113dc04e70409080705131d241d2408e704f2040113f204fd0403130b19fc040705050d131d240d07050c050300071312051d0503131d241c052705020b13270532050313191932053d0507080513071d24083d0548050313191947055205040b131d2452055d050203135d050806070116171d192201`), music.PlaybackMode.InBackground)
     if (mp.getPlayerProperty(mp.getPlayerBySprite(sprite), mp.PlayerProperty.Number) == 1) {
         player_1_dx_multiplier = 2
     } else {
         player_2_dx_multiplier = 2
     }
-    pause(8000)
+    pause(10000)
+    scene_game_music()
     if (mp.getPlayerProperty(mp.getPlayerBySprite(sprite), mp.PlayerProperty.Number) == 1) {
         player_1_dx_multiplier = 1
     } else {
@@ -370,7 +372,24 @@ function scene_game () {
         player_2_bucket.setColor(2, 0)
         player_2_bucket.positionDirection(CollisionDirection.Bottom)
         player_2_bucket.attachToSprite(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)))
-        player_2_bin = sprites.create(assets.image`bin_0`, SpriteKind.Bin)
+        player_2_bin = sprites.create(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            `, SpriteKind.Bin)
         sprites.setDataNumber(player_2_bin, "player", 2)
         player_2_bin.setPosition(scene.screenWidth() + 5, 100)
         if (farmer_p1 == farmer_p2) {
@@ -407,6 +426,17 @@ function scene_game () {
     sprite_worm.setPosition(40, 60)
     story.printDialog("Watch out for worms.  They will make you drop your basket.", 80, 90, 50, 140)
     sprites.destroy(sprite_worm)
+    sprite_powerups = sprites.create(assets.image`coffee`, SpriteKind.Player)
+    animation.runImageAnimation(
+    sprite_powerups,
+    assets.animation`powerups`,
+    500,
+    true
+    )
+    sprite_powerups.setScale(2, ScaleAnchor.Middle)
+    sprite_powerups.setPosition(40, 50)
+    story.printDialog("Keep an eye out for power ups", 80, 90, 50, 140)
+    sprites.destroy(sprite_powerups)
     scene_game_playing = 1
     info.startCountdown(60)
     scene_game_music()
@@ -439,6 +469,9 @@ function scene_game_move_players () {
         }
     }
 }
+scene.onHitWall(SpriteKind.Clock, function (sprite, location) {
+    sprites.destroy(sprite)
+})
 function scene_setup_button (player2: number) {
     if (scene_setup_players[0] == player2) {
         music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.InBackground)
@@ -516,6 +549,7 @@ let sprite_sky: Sprite = null
 let sprite_sky_type = 0
 let player_2_dx = 0
 let player_1_dx = 0
+let sprite_powerups: Sprite = null
 let sprite_worm: Sprite = null
 let player_2_bin: Sprite = null
 let player_1_bin: Sprite = null
@@ -675,7 +709,7 @@ forever(function () {
 })
 forever(function () {
     pauseUntil(() => scene_current == 2 && scene_game_playing == 1)
-    pause(randint(30000, 60000))
+    pause(randint(3000, 6000))
     if (scene_current == 2 && scene_game_playing == 1) {
         sprite_coffee = sprites.create(assets.image`coffee`, SpriteKind.Coffee)
         sprite_coffee.ay = randint(20, 60)
