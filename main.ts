@@ -471,12 +471,18 @@ function scene_game_move_players () {
         player_1_dx = controller.player1.dx(100 * player_1_dx_multiplier)
         mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).x += player_1_dx
     }
+    if (mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).bottom >= scene.screenHeight()) {
+        mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).bottom = 90
+    }
     if (players > 1) {
         if (mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).vy != 0) {
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).x += player_2_dx
         } else {
             player_2_dx = controller.player2.dx(100 * player_2_dx_multiplier)
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).x += player_2_dx
+        }
+        if (mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).bottom >= scene.screenHeight()) {
+            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.Two)).bottom = 90
         }
     }
 }
