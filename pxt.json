@@ -1,6 +1,6 @@
 {
     "name": "Apple Valley Harvest",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "It's apple harvest season in the Annapolis Valley.  Help your farmer bring in the crop!",
     "dependencies": {
         "device": "*",
